@@ -1,0 +1,67 @@
+version: '3.3'
+services:
+    roach1:
+        command: start-single-node --insecure --listen-addr=roach1
+        ports:
+            - 26257:26257
+            - 8080:8080
+        image: cockroachdb/cockroach:v20.1.2
+        networks:
+            - roachnet
+        restart: always
+    viq-api:
+        ports:
+            - 6666:6666
+        image: viq-api
+        networks:
+            - roachnet
+        restart: always
+        depends_on:
+            - "roach1"
+    viq-messages:
+        image: viq-messages
+        networks:
+            - roachnet
+        restart: always
+        depends_on:
+            - "roach1"
+    viq-jwt:
+        image: viq-jwt
+        networks:
+            - roachnet
+        restart: always
+        depends_on:
+            - "roach1"
+    viq-centrifuge:
+        ports:
+            - 8000:8000
+        image: viq-centrifuge
+        restart: always
+        networks:
+            - roachnet
+        depends_on:
+            - "roach1"
+    viq-otp:
+        image: viq-otp
+        networks:
+            - roachnet
+        restart: always
+        depends_on:
+            - "roach1"
+    viq-rooms:
+        image: viq-rooms
+        networks:
+            - roachnet
+        restart: always
+        depends_on:
+            - "roach1"
+    viq-users:
+        image: viq-users-alpine
+        networks:
+            - roachnet
+        restart: always
+        depends_on:
+            - "roach1"
+networks:
+    roachnet:
+        driver: bridge
